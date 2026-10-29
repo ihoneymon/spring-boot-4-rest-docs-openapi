@@ -1,0 +1,98 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.asciidoctor.jvm.convert' version '4.0.5'
+    id 'com.epages.restdocs-api-spec' version '0.20.2'
+}
+
+group = 'io.honeymon.example'
+version = '0.1.0'
+description = 'Spring Boot 4 REST Docs, OpenAPI, and Swagger UI example'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    asciidoctorExt
+}
+
+asciidoctorj {
+    version = '3.0.0'
+}
+
+ext {
+    snippetsDir = file('build/generated-snippets')
+    swaggerUiVersion = '5.33.2'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    runtimeOnly "org.webjars:swagger-ui:${swaggerUiVersion}"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-restdocs'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'com.epages:restdocs-api-spec-mockmvc:0.20.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    outputs.dir snippetsDir
+}
+
+openapi3 {
+    server = 'http://localhost:8080'
+    title = 'Product API'
+    description = 'Spring REST Docs 테스트로부터 생성한 상품 API 명세'
+    version = project.version
+    format = 'yaml'
+    outputDirectory = 'build/api-spec'
+    snippetsDirectory = 'build/generated-snippets'
+}
+
+tasks.matching { it.name == 'openapi3' }.configureEach {
+    dependsOn tasks.named('test')
+}
+
+tasks.named('asciidoctor') {
+    dependsOn tasks.named('test')
+    configurations 'asciidoctorExt'
+    inputs.dir snippetsDir
+    baseDirFollowsSourceFile()
+    attributes 'snippets': snippetsDir
+}
+
+tasks.named('bootJar') {
+    dependsOn tasks.named('asciidoctor'), 'openapi3'
+
+    from(tasks.named('asciidoctor').map { it.outputDir }) {
+        into 'BOOT-INF/classes/static/docs'
+    }
+    from(layout.buildDirectory.dir('api-spec')) {
+        into 'BOOT-INF/classes/static/openapi'
+    }
+}
+
+tasks.register('docs') {
+    group = 'documentation'
+    description = 'REST Docs HTML과 OpenAPI 명세를 모두 생성합니다.'
+    dependsOn tasks.named('asciidoctor'), 'openapi3'
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('docs')
+}
