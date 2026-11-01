@@ -12,7 +12,7 @@ description = 'Spring Boot 4 REST Docs, OpenAPI, and Swagger UI example'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 

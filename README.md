@@ -12,22 +12,25 @@ Spring Boot 4에서 테스트를 API 문서의 단일 소스로 삼는 예제 �
 
 | 구성 요소 | 버전 |
 |---|---:|
-| Java | 21 |
+| Java | 25 |
 | Spring Boot | 4.1.2 |
 | Spring REST Docs | Spring Boot 4.1.2 의존성 관리 버전(4.x) |
 | restdocs-api-spec | 0.20.2 |
 | Swagger UI WebJar | 5.33.2 |
 | Asciidoctor Gradle Plugin | 4.0.5 |
-| Gradle Wrapper | 8.14.3 |
+| Gradle Wrapper | 9.1.0 |
 
-`restdocs-api-spec` 0.20.x부터 Spring Boot 4와 호환됩니다. Java 21은 이 저장소의 실행 기준이며 Spring Boot 4.1 자체는 Java 17 이상을 요구합니다.
+`restdocs-api-spec` 0.20.x부터 Spring Boot 4와 호환됩니다. 이 프로젝트는 Gradle Java Toolchain을 Java 25로 설정하므로 빌드와 실행에 JDK 25를 사용합니다.
 
 ## 빠르게 실행하기
 
 ```bash
+sdk env
 ./gradlew clean build
 java -jar build/libs/spring-boot-4-rest-docs-openapi-0.1.0.jar
 ```
+
+SDKMAN을 사용하는 경우 [`.sdkmanrc`](.sdkmanrc)에 지정된 Java 25(`25.0.4-tem`)를 `sdk env`로 적용합니다. 해당 JDK가 설치되어 있지 않으면 먼저 `sdk env install`을 실행합니다. SDKMAN을 사용하지 않는 경우 JDK 25를 설치하고 `JAVA_HOME`과 `PATH`를 설정한 뒤 `sdk env`를 제외한 명령을 실행합니다.
 
 애플리케이션 실행 후 다음 주소를 확인합니다.
 
